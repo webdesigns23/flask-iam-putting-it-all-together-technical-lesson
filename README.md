@@ -34,7 +34,6 @@ Flask API backend. To get set up, run:
 
 ```bash
 pipenv install && pipenv shell
-npm install --prefix client
 cd server
 ```
 
