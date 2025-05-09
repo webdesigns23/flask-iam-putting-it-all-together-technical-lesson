@@ -2,7 +2,23 @@
 
 ## Introduction
 
+Over the past few lessons, you’ve built the individual pieces of a secure identity
+and access management (IAM) system—handling sessions, cookies, authentication,
+authorization, and password protection. Now it’s time to combine all of those elements
+into a single, full-featured Flask API.
 
+In this lesson, you’ll build a complete user-posting application that supports sign up,
+login, session management, and protected resource access. You’ll implement secure
+password hashing, enforce authorization rules to prevent unauthorized deletions or
+edits, and restrict route access using Flask’s @before_request lifecycle hook.
+
+This lesson mirrors a real-world use case: a multi-user platform with account registration
+and role-based behavior. You’ll also apply relational database modeling to connect users
+and their posts, and return nested data via Marshmallow schemas.
+
+By the end of this lesson, you’ll have built a fully operational backend authentication
+and authorization system—laying the groundwork for any project that requires secure user
+login, session handling, and content ownership.
 
 ## Tools & Resources
 
@@ -32,10 +48,49 @@ python app.py
 
 ### Task 1: Define the Problem
 
+You’ve already learned how to register users, hash passwords, authenticate credentials, and restrict access to resources using sessions. Now, you need to build a complete, secure backend that brings all those elements together in a single Flask API.
 
+This API must:
+* Let users sign up with a unique username and password (securely hashed).
+* Allow users to log in and begin a session.
+* Maintain login state across page reloads and route changes via Flask’s session cookie.
+* Enable logged-in users to create and view posts.
+* Restrict post creation, deletion, and viewing to authenticated users only.
+* Ensure that only the owner of a post can delete it.
+* Block unauthenticated users from accessing protected routes (like /posts) using Flask’s @before_request hook.
 
 ### Task 2: Determine the Design
 
+To solve the problem, you’ll design a Flask API that implements the following core components:
+
+* Authentication Layer
+    * Use Flask-Bcrypt to hash passwords during sign up and verify them during login.
+    * Store user sessions using Flask’s session object and an encrypted cookie.
+
+* Authorization Checks
+    * Use @before_request to protect routes globally.
+    * Check if session['user_id'] exists before allowing access to authenticated routes.
+    * Verify ownership of posts by comparing session['user_id'] to post.user_id before allowing deletion.
+
+* Relational Data Models
+    * Create User and Post models with a one-to-many relationship (a user has many posts).
+    * Enforce constraints: unique usernames, post content ≤ 400 characters, content required.
+
+* Routes and Endpoints
+    * POST `/signup`: Create a new user and log them in.
+    * POST `/login`: Authenticate and log in a user.
+    * DELETE `/logout`: Log out the current user.
+    * GET `/check_session`: Verify login state.
+    * GET `/posts`: Return all posts (only for authenticated users).
+    * POST `/posts`: Create a new post tied to the logged-in user.
+    * DELETE `/posts/<id>`: Allow deletion only if the post belongs to the logged-in user.
+
+* Error Handling and Edge Cases
+    * Return 401 Unauthorized if a user is not logged in.
+    * Return 403 Forbidden if a user tries to delete a post they don’t own.
+    * Return 422 Unprocessable Entity if a signup attempt fails due to duplicate usernames or invalid data.
+
+This design gives you a full-featured Flask IAM backend that’s secure, testable, and scalable for future features like roles, comments, or tokens.
 
 ### Task 3: Develop, Test, and Refine the Code
 
@@ -617,3 +672,39 @@ Best Practice documentation steps:
 * If needed, update git ignore to remove sensitive data
 
 ## Considerations
+
+### All Security Layers Must Work Together
+
+IAM systems are only as strong as their weakest link. Storing secure password
+hashes is critical—but so is preventing unauthorized access to protected
+resources. Make sure passwords, sessions, and route protection all work together
+consistently.
+
+### Always Check for Ownership
+
+It’s not enough to check if a user is logged in. You must also check that they
+own the resource before allowing edits or deletions. For example, only the user
+who created a post should be allowed to delete it.
+
+### Protect Your Routes with Before Hooks
+
+Use Flask’s @before_request hook to prevent unauthorized users from reaching
+sensitive routes. But make sure to exclude public or auth-related routes like
+/login and /signup, or you’ll block access to them too.
+
+### Nested Relationships Can Get Tricky
+
+Be careful when serializing relationships with Marshmallow. Avoid circular references
+by excluding fields like user.posts when serializing posts, and vice versa.
+
+### Handle Unique Constraints Gracefully
+
+Username uniqueness is enforced at the database level, but it's your job to catch
+and handle IntegrityErrors in the signup flow. Return a clear 422 error instead of
+letting the app crash.
+
+### Modular Structure Prevents Circular Imports
+
+As your app grows, make sure to isolate configuration logic (like instantiating
+bcrypt, db, or app) in a shared file like config.py to avoid circular dependencies
+between models.py and app.py.
