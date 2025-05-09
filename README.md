@@ -107,7 +107,7 @@ class Post(db.Model):
     content = db.Column(db.String)
 
     def __repr__(self):
-        return f'<Post {self.id}: {self.title}>'
+        return f'<Post {self.id}: {self.content}>'
 ```
 
 Finally let's establish the relationship between our tables. 
@@ -126,7 +126,7 @@ class Post(db.Model):
     user = db.relationship('User', back_populates="posts")
 
     def __repr__(self):
-        return f'<Post {self.id}: {self.title}>'
+        return f'<Post {self.id}: {self.content}>'
 ```
 
 On User, add the has many relationship:
@@ -345,9 +345,7 @@ def post(self):
     request_json = request.get_json()
 
     post = Post(
-        title=request_json.get('title'),
-        instructions=request_json.get('instructions'),
-        minutes_to_complete=request_json.get('minutes_to_complete'),
+        content=request_json.get('content'),
         user_id=session['user_id']
     )
 
@@ -462,7 +460,7 @@ class Post(db.Model):
     user = db.relationship('User', back_populates="posts")
 
     def __repr__(self):
-        return f'<Post {self.id}: {self.title}>'
+        return f'<Post {self.id}: {self.content}>'
 
 class UserSchema(Schema):
     id = fields.Int()
@@ -561,9 +559,7 @@ class PostIndex(Resource):
         request_json = request.get_json()
 
         post = Post(
-            title=request_json.get('title'),
-            instructions=request_json.get('instructions'),
-            minutes_to_complete=request_json.get('minutes_to_complete'),
+            content=request_json.get('content'),
             user_id=session['user_id']
         )
 
