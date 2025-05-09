@@ -216,16 +216,16 @@ class User(db.Model):
 
 #### Step 2: Add Validations and Serialization to Models
 
-Next, we'll add some contraints to our models.
+Next, we'll add some constraints to our models.
 
-In User, we need to ensure all users have a username and that they are unique in order
-for our auth flow to work properly.
+In User, we need to ensure all users have a username and that they are unique for our
+auth flow to work properly.
 
 ```python
 username = db.Column(db.String, unique=True, nullable=False)
 ```
 
-For Post, we'll set a contraint that requires content to be present and 400 characters
+For Post, we'll set a constraint that requires content to be present and 400 characters
 or less:
 
 ```python
@@ -287,7 +287,7 @@ class Signup(Resource):
 
 Next we need to save the user to the database if they are valid. If not, we'll want to return an error.
 
-One way we can do this with a try/except block:
+One way we can do this is with a try/except block:
 
 ```python
         try:
@@ -459,7 +459,7 @@ def check_if_logged_in():
 # routes
 ```
 
-Here we created a list of routes that should not be protected. Then we chack if the current route
+Here we created a list of routes that should not be protected. Then we check if the current route
 is not in that list and the user is not authenticated, then we return a 401.
 
 #### Step 13: Verify and Refine your Code
@@ -675,7 +675,7 @@ Best Practice documentation steps:
 ### All Security Layers Must Work Together
 
 IAM systems are only as strong as their weakest link. Storing secure password
-hashes is critical—but so is preventing unauthorized access to protected
+hashes is critical, but so is preventing unauthorized access to protected
 resources. Make sure passwords, sessions, and route protection all work together
 consistently.
 
