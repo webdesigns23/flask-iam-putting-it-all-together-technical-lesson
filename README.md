@@ -433,7 +433,7 @@ class Post(Resource):
 Add the route to the API:
 
 ```python
-api.add_resource(Post, '/posts/<int:id>', , endpoint='post')
+api.add_resource(Post, '/posts/<int:id>', endpoint='post')
 ```
 
 #### Step 12: Protect Routes
